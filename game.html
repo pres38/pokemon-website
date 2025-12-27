@@ -3,25 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <title>Pokémon Battle – Grass Field</title>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+/* Navigation Styles */
+header {
+  background: linear-gradient(to bottom, #e02020, #b31b1b);
+  padding: 15px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo h1 {
+  font-size: 2.2rem;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+  letter-spacing: 2px;
+  color: white;
+}
+
+.logo i {
+  font-size: 2.8rem;
+  color: #f8d531;
+  text-shadow: 0 0 10px rgba(248, 213, 49, 0.7);
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 8px 15px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+}
+
+nav a:hover, nav a.active {
+  background: #f8d531;
+  color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Original Game Styles */
 body {
   font-family: Arial, sans-serif;
   background: #0b3d0b;
   text-align: center;
+  margin-top: 0;
 }
 
 .game {
   background: url("https://i.imgur.com/6Iej2c3.jpg") center/cover;
   max-width: 900px;
-  margin: auto;
+  margin: 25px auto 40px;
   padding: 20px;
   border-radius: 20px;
   box-shadow: 0 0 25px black;
   color: white;
 }
 
-h1 { color: #ffcb05; }
+h2 { 
+  color: #ffcb05; 
+  margin-top: 20px;
+  font-size: 2.4rem;
+}
 
 .battle {
   display: flex;
@@ -75,36 +143,91 @@ button {
 button:hover { background: #e63b3b; }
 
 #catchBtn { background: #2a75bb; display: none; }
+
+/* Footer */
+footer {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin-top: 20px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .logo h1 {
+    font-size: 1.8rem;
+  }
+  
+  .battle {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .card {
+    width: 100%;
+  }
+}
 </style>
 </head>
 
 <body>
+  <!-- Navigation Header -->
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <i class="fas fa-book-open"></i>
+        <h1>POKÉMON ENCYCLOPEDIA</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#">ENCYCLOPEDIA</a></li>
+          <li><a href="#" class="active">PLAY BATTLE GAME</a></li>
+          <li><a href="#"><i class="fas fa-search"></i> SEARCH</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-<h1>🌿 Pokémon Battle 🌿</h1>
+  <h2>🌿 Pokémon Battle 🌿</h2>
 
-<div class="game" id="game">
-  <div class="battle">
-    <div class="card player">
-      <h3 id="playerName"></h3>
-      <img id="playerImg">
-      <p>HP: <span id="playerHP"></span></p>
+  <div class="game" id="game">
+    <div class="battle">
+      <div class="card player">
+        <h3 id="playerName"></h3>
+        <img id="playerImg">
+        <p>HP: <span id="playerHP"></span></p>
+      </div>
+
+      <div class="card enemy">
+        <h3 id="enemyName"></h3>
+        <img id="enemyImg">
+        <p>HP: <span id="enemyHP"></span></p>
+      </div>
     </div>
 
-    <div class="card enemy">
-      <h3 id="enemyName"></h3>
-      <img id="enemyImg">
-      <p>HP: <span id="enemyHP"></span></p>
-    </div>
+    <div id="moves"></div>
+    <button id="catchBtn" onclick="catchPokemon()">🎯 Catch Pokémon</button>
+
+    <h3>Your Team</h3>
+    <div id="team"></div>
+
+    <p id="message"></p>
   </div>
 
-  <div id="moves"></div>
-  <button id="catchBtn" onclick="catchPokemon()">🎯 Catch Pokémon</button>
-
-  <h3>Your Team</h3>
-  <div id="team"></div>
-
-  <p id="message"></p>
-</div>
+  <footer>
+    <p>© 2025 Pokémon Encyclopedia | All Pokémon are property of Nintendo, Creatures, and GAME FREAK</p>
+  </footer>
 
 <script>
 const pokemon = {
