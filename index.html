@@ -98,6 +98,32 @@
             padding: 0 20px;
         }
 
+        /* Type Filter Section */
+        .type-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .type-filter button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .type-filter button:hover, .type-filter button.active {
+            background: var(--pokedex-yellow);
+            color: var(--pokedex-dark);
+            transform: translateY(-2px);
+        }
+
         .encyclopedia {
             display: flex;
             flex-wrap: wrap;
@@ -142,25 +168,46 @@
             margin-bottom: 5px;
         }
 
-        .pokemon-info p {
-            color: #555;
+        .pokemon-info .id {
+            color: #777;
             font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .types {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .type {
             display: inline-block;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 15px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: bold;
-            margin-top: 5px;
         }
 
+        /* Type Colors */
         .grass { background: #78c850; color: white; }
         .fire { background: #f08030; color: white; }
         .water { background: #6890f0; color: white; }
         .electric { background: #f8d030; color: black; }
         .rock { background: #b8a038; color: white; }
+        .psychic { background: #f85888; color: white; }
+        .fighting { background: #c03028; color: white; }
+        .poison { background: #a040a0; color: white; }
+        .ground { background: #e0c068; color: black; }
+        .flying { background: #a890f0; color: white; }
+        .bug { background: #a8b820; color: white; }
+        .normal { background: #a8a878; color: white; }
+        .ice { background: #98d8d8; color: black; }
+        .dragon { background: #7038f8; color: white; }
+        .dark { background: #705848; color: white; }
+        .steel { background: #b8b8d0; color: black; }
+        .fairy { background: #ee99ac; color: black; }
+        .ghost { background: #705898; color: white; }
 
         /* Footer */
         footer {
@@ -185,6 +232,15 @@
             .logo h1 {
                 font-size: 2.2rem;
             }
+            
+            .type-filter {
+                gap: 8px;
+            }
+            
+            .type-filter button {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -207,87 +263,24 @@
 
     <!-- Main Content -->
     <div class="container">
+        <div class="type-filter">
+            <button class="active" data-type="all">All Types</button>
+            <button data-type="fire">Fire</button>
+            <button data-type="water">Water</button>
+            <button data-type="grass">Grass</button>
+            <button data-type="electric">Electric</button>
+            <button data-type="rock">Rock</button>
+            <button data-type="psychic">Psychic</button>
+            <button data-type="fighting">Fighting</button>
+            <button data-type="poison">Poison</button>
+            <button data-type="ground">Ground</button>
+            <button data-type="flying">Flying</button>
+            <button data-type="bug">Bug</button>
+            <button data-type="normal">Normal</button>
+        </div>
+        
         <div class="encyclopedia">
-            <!-- Pokémon cards -->
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Pikachu</h3>
-                    <span class="type electric">Electric</span>
-                </div>
-            </div>
-            
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" alt="Charmander">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Charmander</h3>
-                    <span class="type fire">Fire</span>
-                </div>
-            </div>
-            
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" alt="Squirtle">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Squirtle</h3>
-                    <span class="type water">Water</span>
-                </div>
-            </div>
-            
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" alt="Bulbasaur">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Bulbasaur</h3>
-                    <span class="type grass">Grass</span>
-                </div>
-            </div>
-            
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/74.png" alt="Geodude">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Geodude</h3>
-                    <span class="type rock">Rock</span>
-                </div>
-            </div>
-            
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png" alt="Onix">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Onix</h3>
-                    <span class="type rock">Rock</span>
-                </div>
-            </div>
-            
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/26.png" alt="Raichu">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Raichu</h3>
-                    <span class="type electric">Electric</span>
-                </div>
-            </div>
-            
-            <div class="pokemon-card">
-                <div class="pokemon-img">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png" alt="Charmeleon">
-                </div>
-                <div class="pokemon-info">
-                    <h3>Charmeleon</h3>
-                    <span class="type fire">Fire</span>
-                </div>
-            </div>
+            <!-- Pokémon cards will be generated by JavaScript -->
         </div>
     </div>
 
@@ -295,5 +288,112 @@
     <footer>
         <p>© 2025 Pokémon Encyclopedia | All Pokémon are property of Nintendo, Creatures, and GAME FREAK</p>
     </footer>
+
+    <script>
+        // Pokémon data with more entries
+        const pokemonData = [
+            { id: 1, name: "Bulbasaur", types: ["grass", "poison"] },
+            { id: 2, name: "Ivysaur", types: ["grass", "poison"] },
+            { id: 3, name: "Venusaur", types: ["grass", "poison"] },
+            { id: 4, name: "Charmander", types: ["fire"] },
+            { id: 5, name: "Charmeleon", types: ["fire"] },
+            { id: 6, name: "Charizard", types: ["fire", "flying"] },
+            { id: 7, name: "Squirtle", types: ["water"] },
+            { id: 8, name: "Wartortle", types: ["water"] },
+            { id: 9, name: "Blastoise", types: ["water"] },
+            { id: 25, name: "Pikachu", types: ["electric"] },
+            { id: 26, name: "Raichu", types: ["electric"] },
+            { id: 74, name: "Geodude", types: ["rock", "ground"] },
+            { id: 75, name: "Graveler", types: ["rock", "ground"] },
+            { id: 76, name: "Golem", types: ["rock", "ground"] },
+            { id: 95, name: "Onix", types: ["rock", "ground"] },
+            { id: 133, name: "Eevee", types: ["normal"] },
+            { id: 134, name: "Vaporeon", types: ["water"] },
+            { id: 135, name: "Jolteon", types: ["electric"] },
+            { id: 136, name: "Flareon", types: ["fire"] },
+            { id: 150, name: "Mewtwo", types: ["psychic"] },
+            { id: 151, name: "Mew", types: ["psychic"] },
+            { id: 208, name: "Steelix", types: ["steel", "ground"] },
+            { id: 248, name: "Tyranitar", types: ["rock", "dark"] },
+            { id: 249, name: "Lugia", types: ["psychic", "flying"] },
+            { id: 250, name: "Ho-Oh", types: ["fire", "flying"] },
+            { id: 384, name: "Rayquaza", types: ["dragon", "flying"] },
+            { id: 386, name: "Deoxys", types: ["psychic"] },
+            { id: 493, name: "Arceus", types: ["normal"] },
+            { id: 643, name: "Reshiram", types: ["dragon", "fire"] },
+            { id: 644, name: "Zekrom", types: ["dragon", "electric"] }
+        ];
+
+        // Generate encyclopedia cards
+        const encyclopediaSection = document.querySelector('.encyclopedia');
+        
+        pokemonData.forEach(pokemon => {
+            const card = document.createElement('div');
+            card.className = 'pokemon-card';
+            card.dataset.types = pokemon.types.join(' ');
+            
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'pokemon-img';
+            const img = document.createElement('img');
+            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+            img.alt = pokemon.name;
+            imgDiv.appendChild(img);
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'pokemon-info';
+            
+            const idSpan = document.createElement('span');
+            idSpan.className = 'id';
+            idSpan.textContent = `#${pokemon.id.toString().padStart(3, '0')}`;
+            
+            const nameH3 = document.createElement('h3');
+            nameH3.textContent = pokemon.name;
+            
+            const typesDiv = document.createElement('div');
+            typesDiv.className = 'types';
+            pokemon.types.forEach(type => {
+                const typeSpan = document.createElement('span');
+                typeSpan.className = `type ${type}`;
+                typeSpan.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                typesDiv.appendChild(typeSpan);
+            });
+            
+            infoDiv.appendChild(idSpan);
+            infoDiv.appendChild(nameH3);
+            infoDiv.appendChild(typesDiv);
+            
+            card.appendChild(imgDiv);
+            card.appendChild(infoDiv);
+            encyclopediaSection.appendChild(card);
+        });
+
+        // Type filter functionality
+        const filterButtons = document.querySelectorAll('.type-filter button');
+        const pokemonCards = document.querySelectorAll('.pokemon-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active button
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                const filterType = button.dataset.type;
+                
+                // Show/hide cards based on filter
+                pokemonCards.forEach(card => {
+                    if (filterType === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        const cardTypes = card.dataset.types.split(' ');
+                        if (cardTypes.includes(filterType)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
