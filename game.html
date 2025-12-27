@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pokémon Battle – Grass Field</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0b3d0b;
+  text-align: center;
+}
+
+.game {
+  background: url("https://i.imgur.com/6Iej2c3.jpg") center/cover;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 25px black;
+  color: white;
+}
+
+h1 { color: #ffcb05; }
+
+.battle {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.card { width: 45%; }
+
+.player img { width: 160px; image-rendering: pixelated; }
+.enemy img { width: 140px; image-rendering: pixelated; }
+
+/* Animations */
+.projectile {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: yellow;
+  box-shadow: 0 0 10px yellow;
+  animation: move 0.5s linear;
+}
+@keyframes move {
+  from { left: 25%; top: 65%; }
+  to { left: 70%; top: 30%; opacity: 0; }
+}
+
+.hit { animation: flash 0.2s steps(2) 2; }
+@keyframes flash {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(3); }
+  100% { filter: brightness(1); }
+}
+
+.evolve { animation: glow 1.2s steps(2) 3; }
+@keyframes glow {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(4); }
+  100% { filter: brightness(1); }
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+  background: #ff4d4d;
+  color: white;
+  cursor: pointer;
+}
+button:hover { background: #e63b3b; }
+
+#catchBtn { background: #2a75bb; display: none; }
+</style>
+</head>
+
+<body>
+
+<h1>🌿 Pokémon Battle 🌿</h1>
+
+<div class="game" id="game">
+  <div class="battle">
+    <div class="card player">
+      <h3 id="playerName"></h3>
+      <img id="playerImg">
+      <p>HP: <span id="playerHP"></span></p>
+    </div>
+
+    <div class="card enemy">
+      <h3 id="enemyName"></h3>
+      <img id="enemyImg">
+      <p>HP: <span id="enemyHP"></span></p>
+    </div>
+  </div>
+
+  <div id="moves"></div>
+  <button id="catchBtn" onclick="catchPokemon()">🎯 Catch Pokémon</button>
+
+  <h3>Your Team</h3>
+  <div id="team"></div>
+
+  <p id="message"></p>
+</div>
+
+<script>
+const pokemon = {
+  Pikachu:{id:25,hp:100,evo:"Raichu",moves:{Thunderbolt:[18,30],"Iron Tail":[15,25],Tackle:[10,18]}},
+  Raichu:{id:26,hp:140,evo:null,moves:{Thunderbolt:[25,38],"Iron Tail":[22,32],"Volt Tackle":[28,40]}},
+
+  Charmander:{id:4,hp:100,evo:"Charmeleon",moves:{Ember:[10,18],Bite:[12,20],Flamethrower:[20,30]}},
+  Charmeleon:{id:5,hp:130,evo:"Charizard",moves:{Bite:[18,26],Flamethrower:[25,35],"Fire Punch":[22,30]}},
+  Charizard:{id:6,hp:170,evo:null,moves:{Flamethrower:[30,45],"Fire Blast":[35,50],"Dragon Claw":[25,35]}},
+
+  Squirtle:{id:7,hp:110,evo:"Wartortle",moves:{"Water Gun":[12,20],"Skull Bash":[15,25],"Rapid Spin":[10,18]}},
+  Wartortle:{id:8,hp:145,evo:"Blastoise",moves:{"Water Gun":[18,26],"Skull Bash":[20,30],Bite:[15,22]}},
+  Blastoise:{id:9,hp:180,evo:null,moves:{"Hydro Pump":[30,45],"Water Cannon":[25,35],"Skull Bash":[22,32]}},
+
+  Bulbasaur:{id:1,hp:110,evo:"Ivysaur",moves:{"Vine Whip":[12,20],"Seed Bomb":[15,25],Tackle:[10,18]}},
+  Ivysaur:{id:2,hp:145,evo:"Venusaur",moves:{"Vine Whip":[18,28],"Razor Leaf":[20,30],"Seed Bomb":[18,26]}},
+  Venusaur:{id:3,hp:185,evo:null,moves:{"Solar Beam":[35,50],"Razor Leaf":[22,32],"Vine Whip":[20,30]}},
+
+  Geodude:{id:74,hp:120,evo:"Graveler",moves:{"Rock Throw":[14,22],"Rapid Spin":[12,18],"Iron Head":[18,26]}},
+  Graveler:{id:75,hp:155,evo:"Golem",moves:{"Rock Throw":[20,30],"Earthquake":[25,35],"Iron Head":[22,32]}},
+  Golem:{id:76,hp:190,evo:null,moves:{"Earthquake":[35,50],"Stone Edge":[30,45],"Iron Head":[28,40]}},
+
+  Onix:{id:95,hp:170,evo:"Steelix",moves:{"Rock Throw":[20,30],"Rock Tomb":[22,32],"Earthquake":[30,40]}},
+  Steelix:{id:208,hp:210,evo:null,moves:{"Earthquake":[40,55],"Iron Tail":[30,45],"Stone Edge":[35,50]}}
+};
+
+/* ===== POKÉMON LINES ===== */
+const encounterLines = [
+  ["Charmander","Charmeleon","Charizard"],
+  ["Squirtle","Wartortle","Blastoise"],
+  ["Bulbasaur","Ivysaur","Venusaur"],
+  ["Geodude","Graveler","Golem"],
+  ["Onix","Steelix"]
+];
+
+let team = ["Pikachu"];
+let active = 0;
+let playerHP = 0;
+let enemyHP = 0;
+let currentEnemy = "";
+
+function sprite(n){
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon[n].id}.png`;
+}
+function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+/* ===== RANDOM WILD ENCOUNTER ===== */
+function getWildPokemon(){
+  const line = encounterLines[rand(0, encounterLines.length-1)];
+  const roll = Math.random();
+
+  if (roll < 0.1 && line[2]) return line[2];      // 10% final evo
+  if (roll < 0.4 && line[1]) return line[1];      // 30% evo 2
+  return line[0];                                 // 60% base
+}
+
+function loadPlayer(){
+  let n = team[active];
+  playerName.textContent = n;
+  playerImg.src = sprite(n);
+  playerHP = pokemon[n].hp;
+  loadMoves();
+  update();
+}
+
+function loadEnemy(){
+  currentEnemy = getWildPokemon();
+  enemyName.textContent = "Wild " + currentEnemy;
+  enemyImg.src = sprite(currentEnemy);
+  enemyHP = pokemon[currentEnemy].hp;
+  update();
+}
+
+function loadMoves(){
+  moves.innerHTML="";
+  for(let m in pokemon[team[active]].moves){
+    let b=document.createElement("button");
+    b.textContent=m;
+    b.onclick=()=>attack(m);
+    moves.appendChild(b);
+  }
+}
+
+function attack(move){
+  enemyHP -= rand(...pokemon[team[active]].moves[move]);
+  enemyImg.classList.add("hit");
+  setTimeout(()=>enemyImg.classList.remove("hit"),300);
+
+  if(enemyHP<=0){
+    enemyHP=0;
+    message("Enemy defeated!");
+    evolve();
+    catchBtn.style.display="inline-block";
+    update();
+    return;
+  }
+
+  playerHP -= rand(10,20);
+  update();
+}
+
+function evolve(){
+  let evo = pokemon[team[active]].evo;
+  if(!evo) return;
+  playerImg.classList.add("evolve");
+  setTimeout(()=>{
+    team[active]=evo;
+    message("✨ Evolved into " + evo + "!");
+    playerImg.classList.remove("evolve");
+    loadPlayer();
+    updateTeam();
+  },1200);
+}
+
+/* ===== 50% CATCH CHANCE ===== */
+function catchPokemon(){
+  if(Math.random() < 0.5){
+    message("❌ The Pokémon broke free!");
+    return;
+  }
+  message("🎉 Pokémon caught!");
+  team.push(currentEnemy);
+  catchBtn.style.display="none";
+  updateTeam();
+  loadEnemy();
+}
+
+function updateTeam(){
+  teamDiv.innerHTML="";
+  team.forEach((p,i)=>{
+    let b=document.createElement("button");
+    b.textContent=p;
+    b.onclick=()=>{active=i;loadPlayer();};
+    teamDiv.appendChild(b);
+  });
+}
+
+function update(){
+  playerHPSpan.textContent=playerHP;
+  enemyHPSpan.textContent=enemyHP;
+}
+
+function message(t){ messageP.textContent=t; }
+
+const playerName=document.getElementById("playerName");
+const playerImg=document.getElementById("playerImg");
+const playerHPSpan=document.getElementById("playerHP");
+const enemyName=document.getElementById("enemyName");
+const enemyImg=document.getElementById("enemyImg");
+const enemyHPSpan=document.getElementById("enemyHP");
+const moves=document.getElementById("moves");
+const teamDiv=document.getElementById("team");
+const messageP=document.getElementById("message");
+const catchBtn=document.getElementById("catchBtn");
+
+updateTeam();
+loadPlayer();
+loadEnemy();
+</script>
+
+</body>
+</html>
