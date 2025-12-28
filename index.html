@@ -138,6 +138,7 @@
             overflow: hidden;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease;
+            cursor: pointer;
         }
 
         .pokemon-card:hover {
@@ -209,6 +210,171 @@
         .fairy { background: #ee99ac; color: black; }
         .ghost { background: #705898; color: white; }
 
+        /* Pokémon Detail Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #f8f8f8, #e0e0e0);
+            max-width: 800px;
+            margin: 50px auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            color: #ff4d4d;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 10;
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, var(--pokedex-red), #b31b1b);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-pokedex {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .modal-body {
+            display: flex;
+            padding: 20px;
+            gap: 30px;
+        }
+
+        .pokemon-image-container {
+            flex: 0 0 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pokemon-image-container img {
+            width: 180px;
+            image-rendering: pixelated;
+            margin-bottom: 15px;
+        }
+
+        .pokemon-types {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .stat-section {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-section h3 {
+            color: var(--pokedex-red);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--pokedex-yellow);
+            padding-bottom: 5px;
+        }
+
+        .stat-bar {
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--pokedex-blue), var(--pokedex-green));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .moves-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .move-item {
+            background: var(--pokedex-yellow);
+            color: var(--pokedex-dark);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .evolution-chain {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .evolution-step {
+            text-align: center;
+        }
+
+        .evolution-step img {
+            width: 80px;
+            image-rendering: pixelated;
+            margin-bottom: 10px;
+        }
+
+        .evolution-arrow {
+            font-size: 1.5rem;
+            color: var(--pokedex-red);
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -240,6 +406,24 @@
             .type-filter button {
                 padding: 6px 12px;
                 font-size: 0.9rem;
+            }
+            
+            .modal-body {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .pokemon-image-container {
+                flex: 0 0 auto;
+            }
+            
+            .evolution-chain {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .evolution-arrow {
+                transform: rotate(90deg);
             }
         }
     </style>
@@ -284,44 +468,100 @@
         </div>
     </div>
 
+    <!-- Pokémon Detail Modal -->
+    <div class="modal" id="pokemonModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalName">Pokémon Name</h2>
+                <div class="modal-pokedex" id="modalId">#001</div>
+            </div>
+            <div class="modal-body">
+                <div class="pokemon-image-container">
+                    <img id="modalImage" src="" alt="Pokémon">
+                    <div class="pokemon-types" id="modalTypes"></div>
+                </div>
+                <div class="stat-container">
+                    <div class="stat-section">
+                        <h3>Stats</h3>
+                        <div class="stat">
+                            <div>HP</div>
+                            <div class="stat-bar">
+                                <div class="stat-fill" id="hpBar" style="width: 50%">50</div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div>Attack</div>
+                            <div class="stat-bar">
+                                <div class="stat-fill" id="attackBar" style="width: 50%">50</div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div>Defense</div>
+                            <div class="stat-bar">
+                                <div class="stat-fill" id="defenseBar" style="width: 50%">50</div>
+                            </div>
+                        </div>
+                        <div class="stat">
+                            <div>Speed</div>
+                            <div class="stat-bar">
+                                <div class="stat-fill" id="speedBar" style="width: 50%">50</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-section">
+                        <h3>Moves</h3>
+                        <div class="moves-list" id="modalMoves"></div>
+                    </div>
+                    
+                    <div class="stat-section">
+                        <h3>Evolution Chain</h3>
+                        <div class="evolution-chain" id="evolutionChain"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer>
         <p>© 2025 Pokémon Encyclopedia | All Pokémon are property of Nintendo, Creatures, and GAME FREAK</p>
     </footer>
 
     <script>
-        // Pokémon data with more entries
+        // Pokémon data with detailed stats
         const pokemonData = [
-            { id: 1, name: "Bulbasaur", types: ["grass", "poison"] },
-            { id: 2, name: "Ivysaur", types: ["grass", "poison"] },
-            { id: 3, name: "Venusaur", types: ["grass", "poison"] },
-            { id: 4, name: "Charmander", types: ["fire"] },
-            { id: 5, name: "Charmeleon", types: ["fire"] },
-            { id: 6, name: "Charizard", types: ["fire", "flying"] },
-            { id: 7, name: "Squirtle", types: ["water"] },
-            { id: 8, name: "Wartortle", types: ["water"] },
-            { id: 9, name: "Blastoise", types: ["water"] },
-            { id: 25, name: "Pikachu", types: ["electric"] },
-            { id: 26, name: "Raichu", types: ["electric"] },
-            { id: 74, name: "Geodude", types: ["rock", "ground"] },
-            { id: 75, name: "Graveler", types: ["rock", "ground"] },
-            { id: 76, name: "Golem", types: ["rock", "ground"] },
-            { id: 95, name: "Onix", types: ["rock", "ground"] },
-            { id: 133, name: "Eevee", types: ["normal"] },
-            { id: 134, name: "Vaporeon", types: ["water"] },
-            { id: 135, name: "Jolteon", types: ["electric"] },
-            { id: 136, name: "Flareon", types: ["fire"] },
-            { id: 150, name: "Mewtwo", types: ["psychic"] },
-            { id: 151, name: "Mew", types: ["psychic"] },
-            { id: 208, name: "Steelix", types: ["steel", "ground"] },
-            { id: 248, name: "Tyranitar", types: ["rock", "dark"] },
-            { id: 249, name: "Lugia", types: ["psychic", "flying"] },
-            { id: 250, name: "Ho-Oh", types: ["fire", "flying"] },
-            { id: 384, name: "Rayquaza", types: ["dragon", "flying"] },
-            { id: 386, name: "Deoxys", types: ["psychic"] },
-            { id: 493, name: "Arceus", types: ["normal"] },
-            { id: 643, name: "Reshiram", types: ["dragon", "fire"] },
-            { id: 644, name: "Zekrom", types: ["dragon", "electric"] }
+            { id: 1, name: "Bulbasaur", types: ["grass", "poison"], hp: 45, attack: 49, defense: 49, speed: 45, moves: ["Tackle", "Vine Whip", "Growth", "Leech Seed"], evolution: ["Bulbasaur", "Ivysaur", "Venusaur"] },
+            { id: 2, name: "Ivysaur", types: ["grass", "poison"], hp: 60, attack: 62, defense: 63, speed: 60, moves: ["Tackle", "Vine Whip", "Razor Leaf", "Poison Powder"], evolution: ["Bulbasaur", "Ivysaur", "Venusaur"] },
+            { id: 3, name: "Venusaur", types: ["grass", "poison"], hp: 80, attack: 82, defense: 83, speed: 80, moves: ["Razor Leaf", "Solar Beam", "Poison Powder", "Sleep Powder"], evolution: ["Bulbasaur", "Ivysaur", "Venusaur"] },
+            { id: 4, name: "Charmander", types: ["fire"], hp: 39, attack: 52, defense: 43, speed: 65, moves: ["Scratch", "Ember", "Growl", "Smokescreen"], evolution: ["Charmander", "Charmeleon", "Charizard"] },
+            { id: 5, name: "Charmeleon", types: ["fire"], hp: 58, attack: 64, defense: 58, speed: 80, moves: ["Scratch", "Ember", "Dragon Breath", "Fire Fang"], evolution: ["Charmander", "Charmeleon", "Charizard"] },
+            { id: 6, name: "Charizard", types: ["fire", "flying"], hp: 78, attack: 84, defense: 78, speed: 100, moves: ["Flamethrower", "Dragon Claw", "Fire Blast", "Air Slash"], evolution: ["Charmander", "Charmeleon", "Charizard"] },
+            { id: 7, name: "Squirtle", types: ["water"], hp: 44, attack: 48, defense: 65, speed: 43, moves: ["Tackle", "Water Gun", "Tail Whip", "Withdraw"], evolution: ["Squirtle", "Wartortle", "Blastoise"] },
+            { id: 8, name: "Wartortle", types: ["water"], hp: 59, attack: 63, defense: 80, speed: 58, moves: ["Water Gun", "Bite", "Rapid Spin", "Protect"], evolution: ["Squirtle", "Wartortle", "Blastoise"] },
+            { id: 9, name: "Blastoise", types: ["water"], hp: 79, attack: 83, defense: 100, speed: 78, moves: ["Hydro Pump", "Skull Bash", "Ice Beam", "Earthquake"], evolution: ["Squirtle", "Wartortle", "Blastoise"] },
+            { id: 25, name: "Pikachu", types: ["electric"], hp: 35, attack: 55, defense: 40, speed: 90, moves: ["Thunderbolt", "Quick Attack", "Iron Tail", "Electro Ball"], evolution: ["Pikachu", "Raichu"] },
+            { id: 26, name: "Raichu", types: ["electric"], hp: 60, attack: 90, defense: 55, speed: 110, moves: ["Thunder", "Thunderbolt", "Volt Tackle", "Quick Attack"], evolution: ["Pikachu", "Raichu"] },
+            { id: 74, name: "Geodude", types: ["rock", "ground"], hp: 40, attack: 80, defense: 100, speed: 20, moves: ["Rock Throw", "Tackle", "Rollout", "Magnitude"], evolution: ["Geodude", "Graveler", "Golem"] },
+            { id: 75, name: "Graveler", types: ["rock", "ground"], hp: 55, attack: 95, defense: 115, speed: 35, moves: ["Rock Throw", "Earthquake", "Rock Slide", "Magnitude"], evolution: ["Geodude", "Graveler", "Golem"] },
+            { id: 76, name: "Golem", types: ["rock", "ground"], hp: 80, attack: 120, defense: 130, speed: 45, moves: ["Earthquake", "Stone Edge", "Explosion", "Rock Blast"], evolution: ["Geodude", "Graveler", "Golem"] },
+            { id: 95, name: "Onix", types: ["rock", "ground"], hp: 35, attack: 45, defense: 160, speed: 70, moves: ["Rock Throw", "Bind", "Rock Slide", "Screech"], evolution: ["Onix", "Steelix"] },
+            { id: 133, name: "Eevee", types: ["normal"], hp: 55, attack: 55, defense: 50, speed: 55, moves: ["Tackle", "Tail Whip", "Quick Attack", "Bite"], evolution: ["Eevee"] },
+            { id: 134, name: "Vaporeon", types: ["water"], hp: 130, attack: 65, defense: 60, speed: 65, moves: ["Water Gun", "Aqua Tail", "Hydro Pump", "Acid Armor"], evolution: ["Eevee", "Vaporeon"] },
+            { id: 135, name: "Jolteon", types: ["electric"], hp: 65, attack: 65, defense: 60, speed: 130, moves: ["Thunder Shock", "Pin Missile", "Thunderbolt", "Agility"], evolution: ["Eevee", "Jolteon"] },
+            { id: 136, name: "Flareon", types: ["fire"], hp: 65, attack: 130, defense: 60, speed: 65, moves: ["Ember", "Fire Spin", "Flamethrower", "Fire Blast"], evolution: ["Eevee", "Flareon"] },
+            { id: 150, name: "Mewtwo", types: ["psychic"], hp: 106, attack: 110, defense: 90, speed: 130, moves: ["Psychic", "Shadow Ball", "Recover", "Barrier"], evolution: ["Mewtwo"] },
+            { id: 151, name: "Mew", types: ["psychic"], hp: 100, attack: 100, defense: 100, speed: 100, moves: ["Pound", "Transform", "Ancient Power", "Blast Burn"], evolution: ["Mew"] },
+            { id: 208, name: "Steelix", types: ["steel", "ground"], hp: 75, attack: 85, defense: 200, speed: 30, moves: ["Iron Tail", "Earthquake", "Rock Slide", "Heavy Slam"], evolution: ["Onix", "Steelix"] },
+            { id: 248, name: "Tyranitar", types: ["rock", "dark"], hp: 100, attack: 134, defense: 110, speed: 61, moves: ["Crunch", "Earthquake", "Stone Edge", "Fire Blast"], evolution: ["Larvitar", "Pupitar", "Tyranitar"] },
+            { id: 249, name: "Lugia", types: ["psychic", "flying"], hp: 106, attack: 90, defense: 130, speed: 110, moves: ["Aeroblast", "Hydro Pump", "Psychic", "Recover"], evolution: ["Lugia"] },
+            { id: 250, name: "Ho-Oh", types: ["fire", "flying"], hp: 106, attack: 130, defense: 90, speed: 90, moves: ["Sacred Fire", "Brave Bird", "Earthquake", "Recover"], evolution: ["Ho-Oh"] },
+            { id: 384, name: "Rayquaza", types: ["dragon", "flying"], hp: 105, attack: 150, defense: 90, speed: 95, moves: ["Dragon Ascent", "Extreme Speed", "Hyper Beam", "Dragon Dance"], evolution: ["Rayquaza"] },
+            { id: 386, name: "Deoxys", types: ["psychic"], hp: 50, attack: 150, defense: 50, speed: 150, moves: ["Psycho Boost", "Zap Cannon", "Hyper Beam", "Recover"], evolution: ["Deoxys"] },
+            { id: 493, name: "Arceus", types: ["normal"], hp: 120, attack: 120, defense: 120, speed: 120, moves: ["Judgment", "Hyper Beam", "Earth Power", "Roar of Time"], evolution: ["Arceus"] },
+            { id: 643, name: "Reshiram", types: ["dragon", "fire"], hp: 100, attack: 120, defense: 100, speed: 90, moves: ["Blue Flare", "Dragon Claw", "Overheat", "Hyper Voice"], evolution: ["Reshiram"] },
+            { id: 644, name: "Zekrom", types: ["dragon", "electric"], hp: 100, attack: 150, defense: 120, speed: 90, moves: ["Bolt Strike", "Dragon Claw", "Fusion Bolt", "Hyper Voice"], evolution: ["Zekrom"] }
         ];
 
         // Generate encyclopedia cards
@@ -337,6 +577,7 @@
             const img = document.createElement('img');
             img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
             img.alt = pokemon.name;
+            img.onclick = () => showPokemonDetails(pokemon);
             imgDiv.appendChild(img);
             
             const infoDiv = document.createElement('div');
@@ -394,6 +635,96 @@
                 });
             });
         });
+
+        // Show Pokémon details modal
+        function showPokemonDetails(pokemon) {
+            // Set modal content
+            document.getElementById('modalName').textContent = pokemon.name;
+            document.getElementById('modalId').textContent = `#${pokemon.id.toString().padStart(3, '0')}`;
+            document.getElementById('modalImage').src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+            
+            // Set types
+            const typesContainer = document.getElementById('modalTypes');
+            typesContainer.innerHTML = '';
+            pokemon.types.forEach(type => {
+                const typeSpan = document.createElement('span');
+                typeSpan.className = `type ${type}`;
+                typeSpan.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                typesContainer.appendChild(typeSpan);
+            });
+            
+            // Set stats (max stat for scaling is 200)
+            const maxStat = 200;
+            document.getElementById('hpBar').style.width = `${(pokemon.hp / maxStat) * 100}%`;
+            document.getElementById('hpBar').textContent = pokemon.hp;
+            
+            document.getElementById('attackBar').style.width = `${(pokemon.attack / maxStat) * 100}%`;
+            document.getElementById('attackBar').textContent = pokemon.attack;
+            
+            document.getElementById('defenseBar').style.width = `${(pokemon.defense / maxStat) * 100}%`;
+            document.getElementById('defenseBar').textContent = pokemon.defense;
+            
+            document.getElementById('speedBar').style.width = `${(pokemon.speed / maxStat) * 100}%`;
+            document.getElementById('speedBar').textContent = pokemon.speed;
+            
+            // Set moves
+            const movesContainer = document.getElementById('modalMoves');
+            movesContainer.innerHTML = '';
+            pokemon.moves.forEach(move => {
+                const moveSpan = document.createElement('span');
+                moveSpan.className = 'move-item';
+                moveSpan.textContent = move;
+                movesContainer.appendChild(moveSpan);
+            });
+            
+            // Set evolution chain
+            const evolutionContainer = document.getElementById('evolutionChain');
+            evolutionContainer.innerHTML = '';
+            
+            for (let i = 0; i < pokemon.evolution.length; i++) {
+                const step = document.createElement('div');
+                step.className = 'evolution-step';
+                
+                // Find the Pokémon in our data
+                const evolPokemon = pokemonData.find(p => p.name === pokemon.evolution[i]);
+                if (evolPokemon) {
+                    const img = document.createElement('img');
+                    img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evolPokemon.id}.png`;
+                    img.alt = evolPokemon.name;
+                    step.appendChild(img);
+                    
+                    const name = document.createElement('div');
+                    name.textContent = evolPokemon.name;
+                    step.appendChild(name);
+                    
+                    evolutionContainer.appendChild(step);
+                    
+                    // Add arrow between steps (except after the last one)
+                    if (i < pokemon.evolution.length - 1) {
+                        const arrow = document.createElement('div');
+                        arrow.className = 'evolution-arrow';
+                        arrow.innerHTML = '→';
+                        evolutionContainer.appendChild(arrow);
+                    }
+                }
+            }
+            
+            // Show modal
+            document.getElementById('pokemonModal').style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('pokemonModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('pokemonModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 </html>
