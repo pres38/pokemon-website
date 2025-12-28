@@ -31,6 +31,8 @@
             align-items: center;
             padding: 20px;
             overflow-x: hidden;
+            /* Prevent body from scrolling */
+            overflow-y: hidden;
         }
 
         /* Header Styles */
@@ -318,12 +320,13 @@
     <script>
         // Game constants
         const PILLAR_COUNT = 50;
-        const CHARIZARD_SIZE = 80;
-        const PILLAR_WIDTH = 80;
+        const CHARIZARD_SIZE = 60; // Reduced from 80 to 60
+        const PILLAR_WIDTH = 100; // Increased from 80 to 100
         const PILLAR_GAP = 180;
         const GRAVITY = 0.5;
         const JUMP_FORCE = -8;
         const GAME_SPEED = 3;
+        const PILLAR_SPACING = 350;
 
         // Game variables
         let canvas, ctx;
@@ -334,6 +337,8 @@
         let gameWon = false;
         let animationId;
         let charizardImage = new Image();
+        let wingFlapTimer = 0;
+        const WING_FLAP_SPEED = 0.2;
 
         // DOM elements
         const startScreen = document.getElementById('startScreen');
@@ -370,6 +375,11 @@
         function handleKeyDown(e) {
             if (!gameActive) return;
             
+            // Prevent default scrolling behavior
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+            }
+            
             if (e.key === 'ArrowUp') {
                 charizard.velocity = JUMP_FORCE;
             } else if (e.key === 'ArrowDown') {
@@ -384,11 +394,16 @@
             this.velocity = 0;
             this.width = CHARIZARD_SIZE;
             this.height = CHARIZARD_SIZE;
+            this.wingFlapOffset = 0;
             
             this.update = function() {
                 // Apply gravity
                 this.velocity += GRAVITY;
                 this.y += this.velocity;
+                
+                // Update wing flap animation
+                this.wingFlapOffset = Math.sin(wingFlapTimer) * 5;
+                wingFlapTimer += WING_FLAP_SPEED;
                 
                 // Floor and ceiling collision
                 if (this.y + this.height > canvas.height) {
@@ -406,18 +421,45 @@
                 if (charizardImage.complete) {
                     // Calculate the scale to fit the desired size
                     const scale = CHARIZARD_SIZE / charizardImage.width;
+                    
+                    // Save context for transformations
+                    ctx.save();
+                    
+                    // Move to Charizard's position with wing flap animation
+                    ctx.translate(this.x + this.width/2, this.y + this.height/2 + this.wingFlapOffset);
+                    
+                    // Draw the sprite centered at the translation point
                     ctx.drawImage(
                         charizardImage, 
-                        this.x, 
-                        this.y, 
+                        -charizardImage.width * scale / 2, 
+                        -charizardImage.height * scale / 2, 
                         charizardImage.width * scale, 
                         charizardImage.height * scale
                     );
+                    
+                    // Restore context
+                    ctx.restore();
                 } else {
                     // Fallback if image isn't loaded yet
                     ctx.fillStyle = '#F08030';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.fillRect(this.x, this.y + this.wingFlapOffset, this.width, this.height);
                 }
+            };
+            
+            // Check collision with a pillar
+            this.collidesWith = function(pillar) {
+                // Check horizontal overlap
+                if (this.x + this.width > pillar.x && this.x < pillar.x + pillar.width) {
+                    // Check vertical collision with top pillar
+                    if (this.y < pillar.gapY - PILLAR_GAP/2) {
+                        return true;
+                    }
+                    // Check vertical collision with bottom pillar
+                    if (this.y + this.height > pillar.gapY + PILLAR_GAP/2) {
+                        return true;
+                    }
+                }
+                return false;
             };
         }
 
@@ -444,19 +486,13 @@
                 ctx.fillStyle = '#A0522D'; // Sienna
                 ctx.fillRect(this.x - 5, this.gapY - PILLAR_GAP/2 - 10, this.width + 10, 10);
                 ctx.fillRect(this.x - 5, this.gapY + PILLAR_GAP/2, this.width + 10, 10);
-            };
-            
-            this.collidesWith = function(charizard) {
-                // Check if charizard is within pillar's x range
-                if (charizard.x + charizard.width > this.x && charizard.x < this.x + this.width) {
-                    // Check if charizard is in the gap
-                    if (charizard.y > this.gapY - PILLAR_GAP/2 && 
-                        charizard.y + charizard.height < this.gapY + PILLAR_GAP/2) {
-                        return false;
-                    }
-                    return true;
+                
+                // Add more details to wider pillars
+                ctx.fillStyle = '#654321'; // Darker brown for texture
+                for (let i = 20; i < this.width - 20; i += 30) {
+                    ctx.fillRect(this.x + i, 0, 10, this.gapY - PILLAR_GAP/2);
+                    ctx.fillRect(this.x + i, this.gapY + PILLAR_GAP/2, 10, 20);
                 }
-                return false;
             };
         }
 
@@ -468,11 +504,12 @@
             score = 0;
             pillars = [];
             charizard = new Charizard();
+            wingFlapTimer = 0;
             
-            // Create initial pillars
+            // Create initial pillars with increased spacing
             for (let i = 0; i < PILLAR_COUNT; i++) {
                 const gapY = Math.random() * (canvas.height - PILLAR_GAP) + PILLAR_GAP/2;
-                pillars.push(new Pillar(canvas.width + i * 250, gapY));
+                pillars.push(new Pillar(canvas.width + i * PILLAR_SPACING, gapY));
             }
             
             updateScore();
@@ -499,7 +536,7 @@
                 pillars[i].draw();
                 
                 // Check collision
-                if (pillars[i].collidesWith(charizard)) {
+                if (charizard.collidesWith(pillars[i])) {
                     gameOver();
                     return;
                 }
@@ -546,6 +583,21 @@
             drawCloud(150, 100, 30);
             drawCloud(400, 60, 40);
             drawCloud(650, 120, 35);
+            
+            // Distant mountains
+            ctx.fillStyle = 'rgba(139, 69, 19, 0.4)';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            ctx.lineTo(100, canvas.height - 80);
+            ctx.lineTo(200, canvas.height - 40);
+            ctx.lineTo(300, canvas.height - 100);
+            ctx.lineTo(400, canvas.height - 60);
+            ctx.lineTo(500, canvas.height - 120);
+            ctx.lineTo(600, canvas.height - 50);
+            ctx.lineTo(700, canvas.height - 90);
+            ctx.lineTo(800, canvas.height);
+            ctx.closePath();
+            ctx.fill();
         }
 
         // Draw a cloud
