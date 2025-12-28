@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,8 +32,8 @@
             align-items: center;
             padding: 20px;
             overflow-x: hidden;
-            /* Prevent body from scrolling */
-            overflow-y: hidden;
+            /* Allow body to scroll normally for navigation */
+            overflow-y: auto;
         }
 
         /* Header Styles */
@@ -320,8 +321,8 @@
     <script>
         // Game constants
         const PILLAR_COUNT = 50;
-        const CHARIZARD_SIZE = 60; // Reduced from 80 to 60
-        const PILLAR_WIDTH = 100; // Increased from 80 to 100
+        const CHARIZARD_SIZE = 60;
+        const PILLAR_WIDTH = 100;
         const PILLAR_GAP = 180;
         const GRAVITY = 0.5;
         const JUMP_FORCE = -8;
@@ -364,7 +365,7 @@
             restartBtn.addEventListener('click', resetGame);
             playAgainBtn.addEventListener('click', resetGame);
             
-            // Keyboard controls
+            // Keyboard controls (only for arrow keys during gameplay)
             document.addEventListener('keydown', handleKeyDown);
             
             // Initial draw
@@ -375,7 +376,7 @@
         function handleKeyDown(e) {
             if (!gameActive) return;
             
-            // Prevent default scrolling behavior
+            // Only prevent default for arrow keys during gameplay
             if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                 e.preventDefault();
             }
