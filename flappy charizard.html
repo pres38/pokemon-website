@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokémon Games</title>
+    <title>Flappy Charizard - Pokémon Games</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -26,7 +26,11 @@
             background: linear-gradient(135deg, #1a2a6c, #2a5298);
             color: var(--pokedex-light);
             min-height: 100vh;
-            padding-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
         }
 
         /* Header Styles */
@@ -36,6 +40,10 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 15px;
+            margin-bottom: 20px;
         }
 
         .header-content {
@@ -54,13 +62,13 @@
         }
 
         .logo h1 {
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
             letter-spacing: 2px;
         }
 
         .logo i {
-            font-size: 3.5rem;
+            font-size: 2.8rem;
             color: var(--pokedex-yellow);
             text-shadow: 0 0 10px rgba(248, 213, 49, 0.7);
         }
@@ -69,13 +77,13 @@
         nav ul {
             display: flex;
             list-style: none;
-            gap: 25px;
+            gap: 20px;
         }
 
         nav a {
             color: var(--pokedex-light);
             text-decoration: none;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             padding: 8px 15px;
             border-radius: 20px;
@@ -91,303 +99,130 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
-        /* Main Content Styles */
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        /* Type Filter Section */
-        .type-filter {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .type-filter button {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: none;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .type-filter button:hover, .type-filter button.active {
-            background: var(--pokedex-yellow);
-            color: var(--pokedex-dark);
-            transform: translateY(-2px);
-        }
-
-        .encyclopedia {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 25px;
-            justify-content: center;
-        }
-
-        .pokemon-card {
-            background: rgba(255, 255, 255, 0.95);
+        /* Game Container */
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            background: linear-gradient(to bottom, #87CEEB, #1E90FF);
             border-radius: 15px;
-            width: 180px;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
-            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
         }
 
-        .pokemon-card:hover {
-            transform: translateY(-10px);
+        #gameCanvas {
+            display: block;
         }
 
-        .pokemon-img {
-            height: 160px;
+        /* Game UI */
+        .game-ui {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 15px;
         }
 
-        .pokemon-img img {
-            max-width: 120px;
-            image-rendering: pixelated;
-        }
-
-        .pokemon-info {
-            padding: 15px;
-            text-align: center;
-        }
-
-        .pokemon-info h3 {
-            color: var(--pokedex-dark);
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-        }
-
-        .pokemon-info .id {
-            color: #777;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-        }
-
-        .types {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .type {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.85rem;
+        .score-container, .pillars-container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
             font-weight: bold;
         }
 
-        /* Type Colors */
-        .grass { background: #78c850; color: white; }
-        .fire { background: #f08030; color: white; }
-        .water { background: #6890f0; color: white; }
-        .electric { background: #f8d030; color: black; }
-        .rock { background: #b8a038; color: white; }
-        .psychic { background: #f85888; color: white; }
-        .fighting { background: #c03028; color: white; }
-        .poison { background: #a040a0; color: white; }
-        .ground { background: #e0c068; color: black; }
-        .flying { background: #a890f0; color: white; }
-        .bug { background: #a8b820; color: white; }
-        .normal { background: #a8a878; color: white; }
-        .ice { background: #98d8d8; color: black; }
-        .dragon { background: #7038f8; color: white; }
-        .dark { background: #705848; color: white; }
-        .steel { background: #b8b8d0; color: black; }
-        .fairy { background: #ee99ac; color: black; }
-        .ghost { background: #705898; color: white; }
-
-        /* Pokémon Detail Modal */
-        .modal {
-            display: none;
-            position: fixed;
+        /* Start Screen */
+        .start-screen, .game-over-screen, .win-screen {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #f8f8f8, #e0e0e0);
-            max-width: 800px;
-            margin: 50px auto;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            color: #333;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 2rem;
-            color: #ff4d4d;
-            cursor: pointer;
-            background: none;
-            border: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
             z-index: 10;
-        }
-
-        .modal-header {
-            background: linear-gradient(to right, var(--pokedex-red), #b31b1b);
             color: white;
-            padding: 20px;
             text-align: center;
-            position: relative;
-        }
-
-        .modal-header h2 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-pokedex {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .modal-body {
-            display: flex;
             padding: 20px;
-            gap: 30px;
         }
 
-        .pokemon-image-container {
-            flex: 0 0 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .win-screen {
+            background: rgba(46, 204, 113, 0.85);
         }
 
-        .pokemon-image-container img {
-            width: 180px;
-            image-rendering: pixelated;
-            margin-bottom: 15px;
+        .screen-content {
+            max-width: 90%;
         }
 
-        .pokemon-types {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .screen-content h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--pokedex-yellow);
+            text-shadow: 0 0 10px rgba(248, 213, 49, 0.7);
         }
 
-        .stat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .stat-section {
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-section h3 {
-            color: var(--pokedex-red);
-            margin-bottom: 10px;
+        .screen-content p {
             font-size: 1.3rem;
-            border-bottom: 2px solid var(--pokedex-yellow);
-            padding-bottom: 5px;
+            margin-bottom: 25px;
+            line-height: 1.6;
         }
 
-        .stat-bar {
-            height: 25px;
-            background: #e0e0e0;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            overflow: hidden;
-        }
-
-        .stat-fill {
-            height: 100%;
-            background: linear-gradient(to right, var(--pokedex-blue), var(--pokedex-green));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
+        .btn {
+            background: var(--pokedex-red);
             color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .moves-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            transition: all 0.3s ease;
             margin-top: 10px;
         }
 
-        .move-item {
-            background: var(--pokedex-yellow);
-            color: var(--pokedex-dark);
+        .btn:hover {
+            background: #b31b1b;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+
+        .key {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.3);
             padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.9rem;
+            border-radius: 5px;
+            margin: 0 5px;
             font-weight: bold;
-        }
-
-        .evolution-chain {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .evolution-step {
-            text-align: center;
-        }
-
-        .evolution-step img {
-            width: 80px;
-            image-rendering: pixelated;
-            margin-bottom: 10px;
-        }
-
-        .evolution-arrow {
-            font-size: 1.5rem;
-            color: var(--pokedex-red);
         }
 
         /* Footer */
         footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 20px;
             color: rgba(255, 255, 255, 0.8);
             font-size: 0.9rem;
+            width: 100%;
+            max-width: 800px;
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
             .header-content {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
             }
             
             nav ul {
@@ -396,34 +231,19 @@
             }
             
             .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .screen-content h2 {
                 font-size: 2.2rem;
             }
             
-            .type-filter {
-                gap: 8px;
+            .screen-content p {
+                font-size: 1.1rem;
             }
             
-            .type-filter button {
-                padding: 6px 12px;
-                font-size: 0.9rem;
-            }
-            
-            .modal-body {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .pokemon-image-container {
-                flex: 0 0 auto;
-            }
-            
-            .evolution-chain {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .evolution-arrow {
-                transform: rotate(90deg);
+            .game-container {
+                height: 400px;
             }
         }
     </style>
@@ -433,19 +253,370 @@
     <header>
         <div class="header-content">
             <div class="logo">
-                <i class="fas fa-gamepad"></i>
-                <h1>POKÉMON GAMES</h1>
+                <i class="fas fa-fire"></i>
+                <h1>FLAPPY CHARIZARD</h1>
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html" class="active">ENCYCLOPEDIA</a></li>
-                    <li><a href="battle.html">PLAY BATTLE GAME</a></li>
-                    <li><a href="flappy.html">FLAPPY CHARIZARD</a></li>
+                    <li><a href="index.html">ENCYCLOPEDIA</a></li>
+                    <li><a href="game.html" class="active">POKÉMON GAMES</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <div class="container">
-        <div class
+    <!-- Game UI -->
+    <div class="game-ui">
+        <div class="score-container">Pillars Passed: <span id="score">0</span>/50</div>
+        <div class="pillars-container">Pillars Remaining: <span id="pillarsRemaining">50</span></div>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <div class="screen-content">
+                <h2>FLAPPY CHARIZARD</h2>
+                <p>Help Charizard navigate through the volcanic pillars to reach the finish line!</p>
+                <p>You need to pass through 50 pillars to win.</p>
+                <div class="instructions">
+                    Use <span class="key">↑</span> and <span class="key">↓</span> arrow keys to control Charizard
+                </div>
+                <button class="btn" id="startBtn">START GAME</button>
+            </div>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div class="game-over-screen" id="gameOverScreen" style="display: none;">
+            <div class="screen-content">
+                <h2>GAME OVER!</h2>
+                <p>Charizard crashed into a pillar!</p>
+                <p>Pillars passed: <span id="finalScore">0</span></p>
+                <button class="btn" id="restartBtn">PLAY AGAIN</button>
+            </div>
+        </div>
+        
+        <!-- Win Screen -->
+        <div class="win-screen" id="winScreen" style="display: none;">
+            <div class="screen-content">
+                <h2>CONGRATULATIONS!</h2>
+                <p>You helped Charizard pass all 50 pillars!</p>
+                <p>You're a true Pokémon Master!</p>
+                <button class="btn" id="playAgainBtn">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Pokémon Games | All Pokémon are property of Nintendo, Creatures, and GAME FREAK</p>
+    </footer>
+
+    <script>
+        // Game constants
+        const PILLAR_COUNT = 50;
+        const CHARIZARD_SIZE = 60;
+        const PILLAR_WIDTH = 80;
+        const PILLAR_GAP = 180;
+        const GRAVITY = 0.5;
+        const JUMP_FORCE = -8;
+        const GAME_SPEED = 3;
+
+        // Game variables
+        let canvas, ctx;
+        let charizard;
+        let pillars = [];
+        let score = 0;
+        let gameActive = false;
+        let gameWon = false;
+        let animationId;
+
+        // DOM elements
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const winScreen = document.getElementById('winScreen');
+        const scoreElement = document.getElementById('score');
+        const pillarsRemainingElement = document.getElementById('pillarsRemaining');
+        const finalScoreElement = document.getElementById('finalScore');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+
+        // Initialize game
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set up event listeners
+            startBtn.addEventListener('click', startGame);
+            restartBtn.addEventListener('click', resetGame);
+            playAgainBtn.addEventListener('click', resetGame);
+            
+            // Keyboard controls
+            document.addEventListener('keydown', handleKeyDown);
+            
+            // Initial draw
+            drawStartScreen();
+        }
+
+        // Handle keyboard input
+        function handleKeyDown(e) {
+            if (!gameActive) return;
+            
+            if (e.key === 'ArrowUp') {
+                charizard.velocity = JUMP_FORCE;
+            } else if (e.key === 'ArrowDown') {
+                charizard.velocity = -JUMP_FORCE * 0.7; // Down is not as strong as up
+            }
+        }
+
+        // Charizard object
+        function Charizard() {
+            this.x = 150;
+            this.y = canvas.height / 2;
+            this.velocity = 0;
+            this.width = CHARIZARD_SIZE;
+            this.height = CHARIZARD_SIZE;
+            
+            this.update = function() {
+                // Apply gravity
+                this.velocity += GRAVITY;
+                this.y += this.velocity;
+                
+                // Floor and ceiling collision
+                if (this.y + this.height > canvas.height) {
+                    this.y = canvas.height - this.height;
+                    this.velocity = 0;
+                }
+                if (this.y < 0) {
+                    this.y = 0;
+                    this.velocity = 0;
+                }
+            };
+            
+            this.draw = function() {
+                // Draw Charizard (simplified representation)
+                ctx.fillStyle = '#F08030'; // Orange
+                ctx.beginPath();
+                ctx.ellipse(this.x + this.width/2, this.y + this.height/2, this.width/2, this.height/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Wings
+                ctx.fillStyle = '#FF6347'; // Tomato
+                ctx.beginPath();
+                ctx.ellipse(this.x + this.width/2 - 10, this.y + this.height/2 - 15, 25, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.ellipse(this.x + this.width/2 + 10, this.y + this.height/2 - 15, 25, 15, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2 + 5, this.y + this.height/2 - 5, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2 + 5, this.y + this.height/2 - 5, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Fire
+                ctx.fillStyle = '#FF4500'; // OrangeRed
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width, this.y + this.height/2);
+                ctx.lineTo(this.x + this.width + 20, this.y + this.height/2 - 10);
+                ctx.lineTo(this.x + this.width + 15, this.y + this.height/2);
+                ctx.lineTo(this.x + this.width + 20, this.y + this.height/2 + 10);
+                ctx.closePath();
+                ctx.fill();
+            };
+        }
+
+        // Pillar object
+        function Pillar(x, gapY) {
+            this.x = x;
+            this.gapY = gapY;
+            this.width = PILLAR_WIDTH;
+            this.passed = false;
+            
+            this.update = function() {
+                this.x -= GAME_SPEED;
+            };
+            
+            this.draw = function() {
+                // Top pillar
+                ctx.fillStyle = '#8B4513'; // SaddleBrown
+                ctx.fillRect(this.x, 0, this.width, this.gapY - PILLAR_GAP/2);
+                
+                // Bottom pillar
+                ctx.fillRect(this.x, this.gapY + PILLAR_GAP/2, this.width, canvas.height);
+                
+                // Decorative elements
+                ctx.fillStyle = '#A0522D'; // Sienna
+                ctx.fillRect(this.x - 5, this.gapY - PILLAR_GAP/2 - 10, this.width + 10, 10);
+                ctx.fillRect(this.x - 5, this.gapY + PILLAR_GAP/2, this.width + 10, 10);
+            };
+            
+            this.collidesWith = function(charizard) {
+                // Check if charizard is within pillar's x range
+                if (charizard.x + charizard.width > this.x && charizard.x < this.x + this.width) {
+                    // Check if charizard is in the gap
+                    if (charizard.y > this.gapY - PILLAR_GAP/2 && 
+                        charizard.y + charizard.height < this.gapY + PILLAR_GAP/2) {
+                        return false;
+                    }
+                    return true;
+                }
+                return false;
+            };
+        }
+
+        // Start the game
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameActive = true;
+            gameWon = false;
+            score = 0;
+            pillars = [];
+            charizard = new Charizard();
+            
+            // Create initial pillars
+            for (let i = 0; i < PILLAR_COUNT; i++) {
+                const gapY = Math.random() * (canvas.height - PILLAR_GAP) + PILLAR_GAP/2;
+                pillars.push(new Pillar(canvas.width + i * 250, gapY));
+            }
+            
+            updateScore();
+            gameLoop();
+        }
+
+        // Main game loop
+        function gameLoop() {
+            if (!gameActive) return;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            drawBackground();
+            
+            // Update and draw charizard
+            charizard.update();
+            charizard.draw();
+            
+            // Update and draw pillars
+            for (let i = 0; i < pillars.length; i++) {
+                pillars[i].update();
+                pillars[i].draw();
+                
+                // Check collision
+                if (pillars[i].collidesWith(charizard)) {
+                    gameOver();
+                    return;
+                }
+                
+                // Check if pillar is passed
+                if (!pillars[i].passed && pillars[i].x + pillars[i].width < charizard.x) {
+                    pillars[i].passed = true;
+                    score++;
+                    updateScore();
+                    
+                    // Check if all pillars are passed
+                    if (score >= PILLAR_COUNT) {
+                        winGame();
+                        return;
+                    }
+                }
+            }
+            
+            // Remove off-screen pillars (optional optimization)
+            while (pillars.length > 0 && pillars[0].x + pillars[0].width < 0) {
+                pillars.shift();
+            }
+            
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // Draw background
+        function drawBackground() {
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#FF7F50'); // Coral
+            gradient.addColorStop(1, '#FF4500'); // OrangeRed
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Sun
+            ctx.fillStyle = '#FFD700'; // Gold
+            ctx.beginPath();
+            ctx.arc(canvas.width - 80, 80, 50, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            drawCloud(150, 100, 30);
+            drawCloud(400, 60, 40);
+            drawCloud(650, 120, 35);
+        }
+
+        // Draw a cloud
+        function drawCloud(x, y, size) {
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.arc(x + size * 0.8, y - size * 0.2, size * 0.8, 0, Math.PI * 2);
+            ctx.arc(x + size * 1.6, y, size * 0.9, 0, Math.PI * 2);
+            ctx.arc(x + size * 1.2, y + size * 0.3, size * 0.7, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw start screen
+        function drawStartScreen() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            
+            // Draw Charizard on start screen
+            const startCharizard = new Charizard();
+            startCharizard.x = canvas.width / 2 - CHARIZARD_SIZE / 2;
+            startCharizard.y = canvas.height / 2 - CHARIZARD_SIZE / 2;
+            startCharizard.draw();
+        }
+
+        // Update score display
+        function updateScore() {
+            scoreElement.textContent = score;
+            pillarsRemainingElement.textContent = PILLAR_COUNT - score;
+        }
+
+        // Game over
+        function gameOver() {
+            gameActive = false;
+            cancelAnimationFrame(animationId);
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        // Win the game
+        function winGame() {
+            gameActive = false;
+            gameWon = true;
+            cancelAnimationFrame(animationId);
+            winScreen.style.display = 'flex';
+        }
+
+        // Reset game
+        function resetGame() {
+            gameOverScreen.style.display = 'none';
+            winScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+            drawStartScreen();
+        }
+
+        // Initialize the game when page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
